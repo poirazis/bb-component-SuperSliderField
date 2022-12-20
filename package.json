@@ -2,6 +2,7 @@
   "name": "bb-component-SuperSliderField",
   "version": "1.0.0",
   "description": "A Slider Input Field with Super Powers !",
+  "author": "Michael Poirazi",
   "license": "MIT",
   "svelte": "index.js",
   "module": "dist/plugin.min.js",

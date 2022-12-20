@@ -3,14 +3,69 @@
   "metadata": {},
   "schema": {
     "name": "bb-component-SuperSliderField",
-    "friendlyName": "bb-component-SuperSliderField",
+    "friendlyName": "Super Slider Field",
     "description": "A Slider Input Field with Super Powers !",
     "icon": "Text",
     "settings": [
       {
+        "type": "field/number",
+        "key": "field",
+        "label": "Field"
+      },
+      {
         "type": "text",
-        "key": "text",
-        "label": "Text"
+        "key": "label",
+        "label": "Label"
+      },
+      {
+        "type": "select",
+        "key": "sliderType",
+        "label": "Slider Type",
+        "options": [
+          { "label": "Standard", "value": "standard" },
+          { "label": "Ticks", "value": "ticks" },
+          { "label": "Ramp", "value": "ramp" }
+        ],
+        "defaultValue": "standard"
+      },
+      {
+        "type": "number",
+        "key": "tickSize",
+        "label": "Tick Size",
+        "info": "Will default to step size if not set",
+        "dependsOn": { "setting":"sliderType", "value":"ticks"}
+      },
+      {
+        "type": "boolean",
+        "key": "tickLabels",
+        "label": "Tick Labels",
+        "dependsOn": { "setting":"sliderType", "value":"ticks"}
+      },
+      {
+        "type": "number",
+        "key": "min",
+        "label": "Min Value"
+      },
+      {
+        "type": "number",
+        "key": "max",
+        "label": "Max Value"
+      },
+      {
+        "type": "number",
+        "key": "step",
+        "label": "Step",
+        "defaultValue": 1
+      },
+      {
+        "type": "boolean",
+        "key": "disabled",
+        "label": "Disabled"
+      },
+      {
+        "type": "boolean",
+        "key": "filled",
+        "label": "Filled"
       }
     ]
   }
