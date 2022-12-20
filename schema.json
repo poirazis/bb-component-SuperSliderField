@@ -6,16 +6,23 @@
     "friendlyName": "Super Slider Field",
     "description": "A Slider Input Field with Super Powers !",
     "icon": "Text",
+    "styles": [ "size", "padding" ],
     "settings": [
       {
         "type": "field/number",
         "key": "field",
-        "label": "Field"
+        "label": "Field",
+        "required": true
       },
       {
         "type": "text",
         "key": "label",
         "label": "Label"
+      },
+      {
+        "type": "number",
+        "key": "defaultValue",
+        "label": "Default Value"
       },
       {
         "type": "select",
