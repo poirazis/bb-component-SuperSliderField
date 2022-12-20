@@ -5,6 +5,7 @@
   export let label
   export let disabled
   export let field
+  export let defaultValue
   export let min
   export let max
   export let step 
@@ -20,7 +21,7 @@
   let fieldApi
   let value
 
-  const { styleable } = getContext("sdk")
+  const { styleable, builderStore } = getContext("sdk")
   const component = getContext("component")
 
   const formContext = getContext("form");
@@ -32,13 +33,27 @@
 
   $: formStep = formStepContext ? $formStepContext || 1 : 1;
   $: formField = formApi?.registerField(field, "number", 0, false, null, formStep);
-  $: value = fieldState?.value;
+  $: value = fieldState?.value || defaultValue || min
   $: showLabel = labelPos === "above" || false
+  $: if ($formField) setBoundariesFromFieldSchema($formField.fieldSchema)
+  $: disabled = fieldState?.disabled
 
   $: unsubscribe = formField?.subscribe((value) => {
     fieldState = value?.fieldState;
     fieldApi = value?.fieldApi;
   });
+
+  // This function will check the field Schema for min / max constraints and automatically set the props
+  // If no constraints are detected, it will fall back to defaults
+  function setBoundariesFromFieldSchema ( fieldSchema ) {
+    let _min = fieldSchema.constraints.numericality.greaterThanOrEqualTo || 1
+    let _max = fieldSchema.constraints.numericality.lessThanOrEqualTo || 100
+    let _label = fieldSchema.name || "Slider Input"
+
+    builderStore.actions.updateProp("min", _min)
+    builderStore.actions.updateProp("max", _max)
+    builderStore.actions.updateProp("label", _label)
+  }
 
   function handleChange( event ) {
     let newValue = event.detail
@@ -59,6 +74,8 @@
 
   {#if !formContext}
     <div class="placeholder">Form components need to be wrapped in a form</div>
+  {:else if !field}
+    <div class="welcome"> Please Select a Field to get Started </div>
   {:else}
     <label
       class:hidden={!label}
