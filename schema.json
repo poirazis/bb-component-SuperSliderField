@@ -5,7 +5,7 @@
     "name": "bb-component-SuperSliderField",
     "friendlyName": "Super Slider Field",
     "description": "A Slider Input Field with Super Powers !",
-    "icon": "Text",
+    "icon": "Properties",
     "styles": [ "size", "padding" ],
     "settings": [
       {
