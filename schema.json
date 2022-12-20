@@ -1,0 +1,17 @@
+{
+  "type": "component",
+  "metadata": {},
+  "schema": {
+    "name": "bb-component-SuperSliderField",
+    "friendlyName": "bb-component-SuperSliderField",
+    "description": "A Slider Input Field with Super Powers !",
+    "icon": "Text",
+    "settings": [
+      {
+        "type": "text",
+        "key": "text",
+        "label": "Text"
+      }
+    ]
+  }
+}
