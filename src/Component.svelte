@@ -26,9 +26,7 @@
 
   const formContext = getContext("form");
   const formStepContext = getContext("form-step");  
-  
-  const labelPos = getContext("field-group")?.labelPosition || "above"
-  
+  const labelPos = getContext("field-group") || "above"
   const formApi = formContext?.formApi;
 
   $: formStep = formStepContext ? $formStepContext || 1 : 1;
@@ -43,11 +41,21 @@
     fieldApi = value?.fieldApi;
   });
 
+  $: $component.styles = {
+    ...$component.styles,
+    normal : {
+      ...$component.styles.normal,
+      "flex-direction" : labelPos == "above" ? "column" : "row",
+      "gap": labelPos == "left" ? "0.5rem" : "0",
+      "align-items" : labelPos == "left" ? "center" : "stretch"
+    }
+  }
+
   // This function will check the field Schema for min / max constraints and automatically set the props
   // If no constraints are detected, it will fall back to defaults
   function setBoundariesFromFieldSchema ( fieldSchema ) {
-    let _min = fieldSchema.constraints.numericality.greaterThanOrEqualTo || 1
-    let _max = fieldSchema.constraints.numericality.lessThanOrEqualTo || 100
+    let _min = fieldSchema.constraints?.numericality?.greaterThanOrEqualTo || 1
+    let _max = fieldSchema.constraints?.numericality?.lessThanOrEqualTo || 100
     let _label = fieldSchema.name || "Slider Input"
 
     builderStore.actions.updateProp("min", _min)
@@ -56,10 +64,21 @@
   }
 
   function handleChange( event ) {
+
     let newValue = event.detail
     if ( value !== newValue ) {
       value = newValue
       fieldApi.setValue(value)
+    }
+  }
+
+  const handleWheel =  ( e ) => {
+    if (disabled) return
+
+    if ( e.deltaY > 0) {
+      value = value - step < min ? min : value - step
+    } else {
+      value = value + step > max ? max : value + step
     }
   }
 
@@ -70,7 +89,10 @@
 
 </script>
 
-<div class="spectrum-Form-item" use:styleable={$component.styles}>
+<div 
+  class="spectrum-Form-item"
+  on:wheel={handleWheel}
+  use:styleable={$component.styles}>
 
   {#if !formContext}
     <div class="placeholder">Form components need to be wrapped in a form</div>
@@ -78,34 +100,52 @@
     <div class="welcome"> Please Select a Field to get Started </div>
   {:else}
     <label
-      class:hidden={!label}
       for={fieldState?.fieldId}
-      class:spectrum-FieldLabel--left={labelPos !== "above"} 
       class="spectrum-FieldLabel spectrum-FieldLabel--sizeM spectrum-Form-itemLabel"
+      class:hidden={!label}
     >
-      {showLabel ? " " : label}
+      {label}
+      {#if labelPos == "above"}
+        <div class="spectrum-Slider-value">
+          {value}
+        </div>
+      {/if}
     </label>
     <div class="spectrum-Form-itemField">
-        <Slider 
-          {label}
-          {showLabel}
-          {min} 
-          {max} 
-          {value} 
-          {step} 
-          {filled}
-          {sliderType}
-          {tickSize}
-          {tickLabels}
-          {disabled} 
-          on:OnChange={handleChange}
-        /> 
+      <Slider 
+        {min} 
+        {max} 
+        {value} 
+        {step} 
+        {filled}
+        {sliderType}
+        {tickSize}
+        {tickLabels}
+        {disabled} 
+        on:OnChange={handleChange}
+      /> 
+    </div>
+
+    {#if labelPos != "above"}
+      <div class="spectrum-Slider-value" >
+        {value}
       </div>
+    {/if}
   {/if}
 
 </div>
 
 <style>
+
+.spectrum-Form-item {
+  display: flex;
+}
+
+.spectrum-FieldLabel {
+  display: flex;
+  justify-content: space-between;
+
+}
   label {
     white-space: nowrap;
   }
@@ -116,8 +156,5 @@
     display: block;
     position: relative;
     width: 100%;
-  }
-  .spectrum-FieldLabel--left {
-    padding-right: var(--spectrum-global-dimension-size-200);
   }
 </style>
