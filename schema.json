@@ -3,7 +3,7 @@
   "metadata": {},
   "schema": {
     "name": "bb-component-SuperSliderField",
-    "friendlyName": "Super Slider Field",
+    "friendlyName": "Super Field - Slider",
     "description": "A Slider Input Field with Super Powers !",
     "icon": "Properties",
     "styles": [ "size", "padding" ],
