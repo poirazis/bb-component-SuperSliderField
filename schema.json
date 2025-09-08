@@ -1,0 +1,85 @@
+{
+  "type": "component",
+  "metadata": {},
+  "schema": {
+    "name": "bb-component-SuperSliderField",
+    "friendlyName": "Super Field - Slider",
+    "description": "A Slider Input Field with Super Powers !",
+    "icon": "Properties",
+    "styles": ["size", "padding"],
+    "settings": [
+      {
+        "type": "field/number",
+        "key": "field",
+        "label": "Field",
+        "required": true
+      },
+      {
+        "type": "text",
+        "key": "label",
+        "label": "Label"
+      },
+      {
+        "type": "number",
+        "key": "defaultValue",
+        "label": "Default Value"
+      },
+      {
+        "type": "select",
+        "key": "sliderType",
+        "label": "Slider Type",
+        "options": [
+          { "label": "Standard", "value": "standard" },
+          { "label": "Ticks", "value": "ticks" },
+          { "label": "Ramp", "value": "ramp" }
+        ],
+        "defaultValue": "standard"
+      },
+      {
+        "type": "number",
+        "key": "tickSize",
+        "label": "Tick Size",
+        "info": "Will default to step size if not set",
+        "dependsOn": { "setting": "sliderType", "value": "ticks" }
+      },
+      {
+        "type": "boolean",
+        "key": "tickLabels",
+        "label": "Tick Labels",
+        "dependsOn": { "setting": "sliderType", "value": "ticks" }
+      },
+      {
+        "type": "number",
+        "key": "min",
+        "label": "Min Value"
+      },
+      {
+        "type": "number",
+        "key": "max",
+        "label": "Max Value"
+      },
+      {
+        "type": "number",
+        "key": "step",
+        "label": "Step",
+        "defaultValue": 1
+      },
+      {
+        "type": "boolean",
+        "key": "disabled",
+        "label": "Disabled"
+      },
+      {
+        "type": "boolean",
+        "key": "filled",
+        "label": "Filled"
+      },
+      {
+        "type": "boolean",
+        "key": "invisible",
+        "label": "Invisible",
+        "defaultValue": false
+      }
+    ]
+  }
+}
