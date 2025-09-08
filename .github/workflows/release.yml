@@ -5,10 +5,15 @@ on:
     branches:
       - master
       - main
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v1
@@ -18,8 +23,8 @@ jobs:
         run: |
           release_version=$(cat package.json | jq -r '.version')
           echo "RELEASE_VERSION=$release_version" >> $GITHUB_ENV
-          yarn
-          yarn build
+          npm ci
+          npm run build
       - name: Perform Github Release
         uses: softprops/action-gh-release@v1
         with:
