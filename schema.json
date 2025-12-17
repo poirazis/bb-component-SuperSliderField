@@ -75,6 +75,7 @@
         "label": "Filled"
       },
       {
+        "tag": "style",
         "type": "boolean",
         "key": "invisible",
         "label": "Invisible",
