@@ -1,12 +1,17 @@
 {
   "type": "component",
-  "metadata": {},
+  "metadata": {
+    "svelteMajor": 5
+  },
   "schema": {
     "name": "bb-component-SuperSliderField",
     "friendlyName": "Super Field - Slider",
     "description": "A Slider Input Field with Super Powers !",
     "icon": "Properties",
-    "styles": ["size", "padding"],
+    "styles": [
+      "size",
+      "padding"
+    ],
     "settings": [
       {
         "type": "field/number",
@@ -29,9 +34,18 @@
         "key": "sliderType",
         "label": "Slider Type",
         "options": [
-          { "label": "Standard", "value": "standard" },
-          { "label": "Ticks", "value": "ticks" },
-          { "label": "Ramp", "value": "ramp" }
+          {
+            "label": "Standard",
+            "value": "standard"
+          },
+          {
+            "label": "Ticks",
+            "value": "ticks"
+          },
+          {
+            "label": "Ramp",
+            "value": "ramp"
+          }
         ],
         "defaultValue": "standard"
       },
@@ -40,13 +54,19 @@
         "key": "tickSize",
         "label": "Tick Size",
         "info": "Will default to step size if not set",
-        "dependsOn": { "setting": "sliderType", "value": "ticks" }
+        "dependsOn": {
+          "setting": "sliderType",
+          "value": "ticks"
+        }
       },
       {
         "type": "boolean",
         "key": "tickLabels",
         "label": "Tick Labels",
-        "dependsOn": { "setting": "sliderType", "value": "ticks" }
+        "dependsOn": {
+          "setting": "sliderType",
+          "value": "ticks"
+        }
       },
       {
         "type": "number",

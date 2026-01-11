@@ -58,7 +58,7 @@
     class="spectrum-Slider"
   >
     <div class="spectrum-Slider-controls">
-      <div class="spectrum-Slider-track" style="width: {_pos[0] * 100}%;" />
+      <div class="spectrum-Slider-track" style="width: {_pos[0] * 100}%;"></div>
       <SliderKnob
         bind:pos={_pos[0]}
         on:active={({ detail: v }) => (active = v)}
@@ -66,7 +66,7 @@
       <div
         class="spectrum-Slider-track"
         style="width: {(1 - _pos[0]) * 100}%; "
-      />
+      ></div>
     </div>
   </div>
 {:else if sliderType === "ramp"}
