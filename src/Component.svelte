@@ -7,9 +7,9 @@
   export let field;
   export let invisible = false;
   export let defaultValue;
-  export let min;
-  export let max;
-  export let step;
+  export let min = 0;
+  export let max = 100;
+  export let step = 10;
 
   export let sliderType;
   export let filled;
