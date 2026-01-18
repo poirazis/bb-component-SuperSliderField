@@ -8,10 +8,7 @@
     "friendlyName": "Super Field - Slider",
     "description": "A Slider Input Field with Super Powers !",
     "icon": "Properties",
-    "styles": [
-      "size",
-      "padding"
-    ],
+    "styles": ["size", "padding"],
     "settings": [
       {
         "type": "field/number",
@@ -71,18 +68,20 @@
       {
         "type": "number",
         "key": "min",
-        "label": "Min Value"
+        "label": "Min Value",
+        "defaultValue": 0
       },
       {
         "type": "number",
         "key": "max",
-        "label": "Max Value"
+        "label": "Max Value",
+        "defaultValue": 100
       },
       {
         "type": "number",
         "key": "step",
         "label": "Step",
-        "defaultValue": 1
+        "defaultValue": 10
       },
       {
         "type": "boolean",

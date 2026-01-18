@@ -1,5 +1,7 @@
 import { defineConfig } from "vite";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
+import { viteSingleFile } from "vite-plugin-singlefile";
+import cssInjectedByJsPlugin from "vite-plugin-css-injected-by-js";
 import { fileURLToPath } from "url";
 import {
   readFileSync,
@@ -18,7 +20,6 @@ const pkg = JSON.parse(
   readFileSync(new URL("./package.json", import.meta.url), "utf8")
 );
 
-// Custom plugin to clean the dist folder before building
 const clean = () => ({
   name: "clean",
   apply: "build",
@@ -26,55 +27,16 @@ const clean = () => ({
     const dist = "./dist/";
     if (existsSync(dist)) {
       readdirSync(dist).forEach((path) => {
-        if (path.endsWith(".tar.gz")) {
-          unlinkSync(dist + path);
-        }
+        if (path.endsWith(".tar.gz")) unlinkSync(dist + path);
       });
     }
   },
 });
 
-// Custom plugin to hash the JS bundle and write it in the schema
-const hash = () => ({
-  name: "hash",
-  apply: "build",
-  async writeBundle() {
-    // Ensure dist directory exists
-    if (!existsSync("dist")) {
-      return;
-    }
-
-    // Generate JS hash
-    const fileBuffer = readFileSync("dist/plugin.min.js");
-    const hashSum = createHash("sha1");
-    hashSum.update(fileBuffer);
-    const hex = hashSum.digest("hex");
-
-    // Read and parse existing schema from dist folder
-    const schemaPath = "./dist/schema.json";
-    if (!existsSync(schemaPath)) {
-      return;
-    }
-
-    const schema = JSON.parse(readFileSync(schemaPath, "utf8"));
-
-    // Write updated schema to dist folder, pretty printed as JSON again
-    const newSchema = {
-      ...schema,
-      hash: hex,
-      version: pkg.version,
-    };
-    writeFileSync(schemaPath, JSON.stringify(newSchema, null, 2));
-  },
-});
-
-// Custom plugin to bundle up our files after building
 const bundle = () => ({
   name: "bundle",
   async writeBundle() {
-    // Add a small delay to ensure all files are fully written before tarring
-    await new Promise((resolve) => setTimeout(resolve, 100));
-
+    await new Promise((r) => setTimeout(r, 100));
     const bundleName = `${pkg.name}-${pkg.version}.tar.gz`;
     return new Promise((resolve, reject) => {
       tar
@@ -99,61 +61,45 @@ const validateSchema = () => ({
   },
 });
 
-const inlineCssPlugin = () => {
-  let collectedCss = "";
+const copyAndHash = () => ({
+  name: "copy-and-hash",
+  apply: "build",
+  async writeBundle() {
+    writeFileSync("dist/schema.json", readFileSync("schema.json", "utf8"));
+    writeFileSync("dist/package.json", readFileSync("package.json", "utf8"));
 
-  return {
-    name: "inline-css",
-    apply: "build",
-    enforce: "post",
+    const jsBuffer = readFileSync("dist/plugin.min.js");
+    const hash = createHash("sha1").update(jsBuffer).digest("hex");
 
-    // Collect CSS from generateBundle and inline it
-    generateBundle(options, bundle) {
-      for (const fileName in bundle) {
-        const chunk = bundle[fileName];
-        if (fileName.endsWith(".css")) {
-          collectedCss += chunk.source;
-          // Remove CSS file from bundle
-          delete bundle[fileName];
-        }
-      }
-    },
-
-    writeBundle() {
-      if (!collectedCss) return;
-
-      const jsPath = "dist/plugin.min.js";
-      if (!existsSync(jsPath)) return;
-
-      const jsContent = readFileSync(jsPath, "utf8");
-
-      // Create CSS injection code that runs once at load time
-      const cssInjection = `(function(){try{var d=document,s=d.createElement("style");s.textContent=${JSON.stringify(
-        collectedCss
-      )};d.head.appendChild(s)}catch(e){}})();`;
-
-      // Prepend CSS injection to JS
-      writeFileSync(jsPath, cssInjection + jsContent);
-
-      // Reset for next build
-      collectedCss = "";
-    },
-  };
-};
+    const schema = JSON.parse(readFileSync("dist/schema.json", "utf8"));
+    writeFileSync(
+      "dist/schema.json",
+      JSON.stringify(
+        {
+          ...schema,
+          hash,
+          version: pkg.version,
+        },
+        null,
+        2
+      )
+    );
+  },
+});
 
 export default defineConfig({
   plugins: [
+    clean(),
     validateSchema(),
     svelte({
-      compilerOptions: {
-        compatibility: {
-          componentApi: 4,
-        },
-      },
-      emitCss: true, // Extract CSS from components
+      compilerOptions: { compatibility: { componentApi: 4 } },
+      emitCss: true,
       preprocess: [],
     }),
-    inlineCssPlugin(), // Inline CSS into JS bundle
+    cssInjectedByJsPlugin(),
+    viteSingleFile(),
+    copyAndHash(),
+    bundle(),
   ],
   build: {
     target: "esnext",
@@ -169,49 +115,21 @@ export default defineConfig({
     cssCodeSplit: false,
     rollupOptions: {
       external: (id) => id === "svelte" || id.startsWith("svelte/"),
-      output: {
-        globals: (id) =>
-          id === "svelte/store"
-            ? "svelteStore"
-            : id.includes("/internal")
-            ? "svelteInternal"
-            : "svelte",
+      treeshake: {
+        moduleSideEffects: false,
+        preset: "recommended",
       },
-      plugins: [
-        clean(),
-        {
-          name: "copy-and-hash-assets",
-          apply: "build",
-          async writeBundle() {
-            // Copy schema.json and package.json to dist
-            const schema = readFileSync("schema.json", "utf8");
-            writeFileSync("dist/schema.json", schema);
-            const packageJson = readFileSync("package.json", "utf8");
-            writeFileSync("dist/package.json", packageJson);
-
-            // Generate JS hash
-            const fileBuffer = readFileSync("dist/plugin.min.js");
-            const hashSum = createHash("sha1");
-            hashSum.update(fileBuffer);
-            const hex = hashSum.digest("hex");
-
-            // Update schema with hash
-            const parsedSchema = JSON.parse(
-              readFileSync("dist/schema.json", "utf8")
-            );
-            const newSchema = {
-              ...parsedSchema,
-              hash: hex,
-              version: pkg.version,
-            };
-            writeFileSync(
-              "dist/schema.json",
-              JSON.stringify(newSchema, null, 2)
-            );
-          },
+      output: {
+        globals: (id) => {
+          if (id === "svelte/store") return "svelteStore";
+          if (id === "svelte/transition") return "svelteTransition";
+          if (id === "svelte/animate") return "svelteAnimate";
+          if (id === "svelte/motion") return "svelteMotion";
+          if (id === "svelte/easing") return "svelteEasing";
+          if (id.includes("/internal")) return "svelteInternal";
+          return "svelte";
         },
-        bundle(),
-      ],
+      },
     },
   },
 });
